@@ -19,25 +19,11 @@ public class UserService {
 
     public User registerUser(UserDto userDto) {
 
-        Optional<User> userByEmail = userRepository.findByEmail(userDto.getEmail());
-        if(userByEmail.isPresent()) throw new RuntimeException("Podany email istnieje w bazie danych");
-        Optional<User> userByUsername = userRepository.findByUsername(userDto.getUsername());
-        if(userByUsername.isPresent()) throw new RuntimeException("Ta nazwa użytkownika już istnieje w bazie danych");
+        validateEmail(userDto.getEmail());
+        validateUsername(userDto.getUsername());
+        validatePassword(userDto.getPassword());
 
-        var password = userDto.getPassword();
-
-        if (!Pattern.compile("[A-Z]").matcher(password).find()) {
-            throw new RuntimeException("Hasło musi zawierać dużą literę");
-        }
-        if (!Pattern.compile("[0-9]").matcher(password).find()) {
-            throw new RuntimeException("Hasło musi zawierać cyfrę");
-        }
-        if (!Pattern.compile("[^a-zA-Z0-9]").matcher(password).find()) {
-            throw new RuntimeException("Hasło musi zawierać znak specjalny");
-        }
-
-        var passwordEncoder = new BCryptPasswordEncoder();
-        var passwordInBcrypt = passwordEncoder.encode(password);
+        var passwordInBcrypt = hashPassword(userDto.getPassword());
 
         User user = User.builder()
                 .id(null)
@@ -49,5 +35,36 @@ public class UserService {
                 .password(passwordInBcrypt)
                 .build();
         return userRepository.save(user);
+    }
+
+    private void validateEmail(String email) {
+        Optional<User> userByEmail = userRepository.findByEmail(email);
+        if (userByEmail.isPresent()) {
+            throw new RuntimeException("Podany email istnieje w bazie danych");
+        }
+    }
+
+    private void validateUsername(String username) {
+        Optional<User> userByUsername = userRepository.findByUsername(username);
+        if (userByUsername.isPresent()) {
+            throw new RuntimeException("Ta nazwa użytkownika już istnieje w bazie danych");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (!Pattern.compile("[A-Z]").matcher(password).find()) {
+            throw new RuntimeException("Hasło musi zawierać dużą literę");
+        }
+        if (!Pattern.compile("[0-9]").matcher(password).find()) {
+            throw new RuntimeException("Hasło musi zawierać cyfrę");
+        }
+        if (!Pattern.compile("[^a-zA-Z0-9]").matcher(password).find()) {
+            throw new RuntimeException("Hasło musi zawierać znak specjalny");
+        }
+    }
+
+    private String hashPassword(String password) {
+        var passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 }
