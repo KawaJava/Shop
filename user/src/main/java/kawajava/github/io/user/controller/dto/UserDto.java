@@ -3,8 +3,10 @@ package kawajava.github.io.user.controller.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 
+@Getter
 public class UserDto {
     @NotBlank
     @Length(min = 3, max = 255)
