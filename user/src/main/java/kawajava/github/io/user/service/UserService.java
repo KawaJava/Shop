@@ -18,22 +18,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User registerUser(UserDto userDto) {
-
         validateEmail(userDto.getEmail());
         validateUsername(userDto.getUsername());
         validatePassword(userDto.getPassword());
 
         var passwordInBcrypt = hashPassword(userDto.getPassword());
 
-        User user = User.builder()
-                .id(null)
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .username(userDto.getUsername())
-                .email(userDto.getEmail())
-                .phoneNumber(userDto.getPhoneNumber())
-                .password(passwordInBcrypt)
-                .build();
+        User user = mapUToUser(userDto, passwordInBcrypt,null);
         return userRepository.save(user);
     }
 
@@ -66,5 +57,17 @@ public class UserService {
     private String hashPassword(String password) {
         var passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.encode(password);
+    }
+
+    private User mapUToUser(UserDto userDto, String passwordInBcrypt, Long id) {
+        return User.builder()
+                .id(id)
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
+                .username(userDto.getUsername())
+                .email(userDto.getEmail())
+                .phoneNumber(userDto.getPhoneNumber())
+                .password(passwordInBcrypt)
+                .build();
     }
 }
