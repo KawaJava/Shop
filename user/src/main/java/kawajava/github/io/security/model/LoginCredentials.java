@@ -1,4 +1,4 @@
-package kawajava.github.io.security;
+package kawajava.github.io.security.model;
 
 public record LoginCredentials(String username, String password) {
 }
