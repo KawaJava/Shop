@@ -2,11 +2,9 @@ package kawajava.github.io.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +29,7 @@ public class LoginController {
     private String secret;
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginCredentials loginCredentials) {
+    public Token login(@RequestBody LoginCredentials loginCredentials) {
         var authenticate = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginCredentials.username(), loginCredentials.password())
         );
@@ -43,8 +41,6 @@ public class LoginController {
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .sign(Algorithm.HMAC256(secret));
 
-        return token;
+        return new Token(token);
     }
-
-
 }
