@@ -1,5 +1,6 @@
-package kawajava.github.io.mail;
+package kawajava.github.io.mail.service;
 
+import kawajava.github.io.mail.EmailSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

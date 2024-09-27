@@ -1,5 +1,8 @@
-package kawajava.github.io.mail;
+package kawajava.github.io.mail.config;
 
+import kawajava.github.io.mail.EmailSender;
+import kawajava.github.io.mail.service.EmailSimpleService;
+import kawajava.github.io.mail.service.FakeEmailService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
