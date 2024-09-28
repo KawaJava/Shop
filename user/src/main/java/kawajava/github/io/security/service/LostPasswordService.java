@@ -6,6 +6,7 @@ import kawajava.github.io.security.model.ChangePassword;
 import kawajava.github.io.security.model.EmailObject;
 import kawajava.github.io.user.model.User;
 import kawajava.github.io.user.repository.UserRepository;
+import kawajava.github.io.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ public class LostPasswordService {
     private final EmailClientService emailClientService;
     @Value("${app.serviceAddress}")
     private String serviceAddress;
+    private final UserService userService;
 
     @Transactional
     public void sendLostPasswordLink(EmailObject email) {
@@ -57,6 +59,7 @@ public class LostPasswordService {
         if(!Objects.equals(changePassword.getPassword(), changePassword.getRepeatPassword())) {
             throw new RuntimeException("Hasła nie są takie same");
         }
+        userService.validatePassword(changePassword.getPassword());
         var user = userRepository.findByHash(changePassword.getHash())
                 .orElseThrow(() -> new RuntimeException("Nieprawidłowy link"));
         if(user.getHashDate().plusMinutes(60).isAfter(LocalDateTime.now())){
@@ -66,7 +69,6 @@ public class LostPasswordService {
         } else {
             throw new RuntimeException("Link stracił ważność");
         }
-
     }
 
 }

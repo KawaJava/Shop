@@ -43,7 +43,7 @@ public class UserService {
         }
     }
 
-    private void validatePassword(String password) {
+    public void validatePassword(String password) {
         if (!Pattern.compile("[A-Z]").matcher(password).find()) {
             throw new RuntimeException("Hasło musi zawierać dużą literę");
         }
