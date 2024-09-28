@@ -1,10 +1,12 @@
 package kawajava.github.io.user.service;
 
 
+import kawajava.github.io.exception.ResourceNotFoundException;
 import kawajava.github.io.user.controller.dto.UserDto;
 import kawajava.github.io.user.model.User;
 import kawajava.github.io.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,9 @@ public class UserService {
         validateEmail(userDto.getEmail());
         validateUsername(userDto.getUsername());
         validatePassword(userDto.getPassword());
-
         var passwordInBcrypt = hashPassword(userDto.getPassword());
 
-        User user = mapUToUser(userDto, passwordInBcrypt,null);
+        var user = mapToUser(userDto, passwordInBcrypt,null);
         return userRepository.save(user);
     }
 
@@ -59,7 +60,7 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
-    private User mapUToUser(UserDto userDto, String passwordInBcrypt, Long id) {
+    private User mapToUser(UserDto userDto, String passwordInBcrypt, Long id) {
         return User.builder()
                 .id(id)
                 .firstName(userDto.getFirstName())
@@ -69,5 +70,20 @@ public class UserService {
                 .phoneNumber(userDto.getPhoneNumber())
                 .password(passwordInBcrypt)
                 .build();
+    }
+
+    public String updateUser(UserDetails userDetails, UserDto userDto) {
+        Optional<User> userOptional = userRepository.findByUsername(userDetails.getUsername());
+        if (userOptional.isEmpty()) {
+            throw new ResourceNotFoundException(userOptional.get().getUsername());
+        }
+        var user = userOptional.get();
+        validateEmail(userDto.getEmail());
+        validateUsername(userDto.getUsername());
+        validatePassword(userDto.getPassword());
+        var passwordInBcrypt = hashPassword(userDto.getPassword());
+        var updatedUser = mapToUser(userDto, passwordInBcrypt, user.getId());
+        userRepository.save(updatedUser);
+        return "Dane użytkownika zostały zaktualizowane";
     }
 }
