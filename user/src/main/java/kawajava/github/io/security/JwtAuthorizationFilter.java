@@ -6,10 +6,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kawajava.github.io.jwtblacklist.service.JWTBlacklistService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -20,13 +20,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private static final String TOKEN_PREFIX = "Bearer ";
     private final UserDetailsService userDetailsService;
     private final String secret;
+    private final JWTBlacklistService jwtBlacklistService;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
                                   UserDetailsService userDetailsService,
-                                  String secret) {
+                                  String secret, JWTBlacklistService jwtBlacklistService) {
         super(authenticationManager);
         this.userDetailsService = userDetailsService;
         this.secret = secret;
+        this.jwtBlacklistService = jwtBlacklistService;
     }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -41,17 +43,23 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(TOKEN_HEADER);
+        var token = request.getHeader(TOKEN_HEADER);
         if (token != null && token.startsWith(TOKEN_PREFIX)) {
-            String userName = JWT.require(Algorithm.HMAC256(secret))
-                    .build()
-                    .verify(token.replace(TOKEN_PREFIX, ""))
-                    .getSubject();
-            if (userName != null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-                return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
-            }
+            var jwt = token.replace(TOKEN_PREFIX, "");
+
+        if (jwtBlacklistService.isTokenInvalidated(jwt)) {
+            return null;
         }
-        return null;
+        var userName = JWT.require(Algorithm.HMAC256(secret))
+                .build()
+                .verify(jwt)
+                .getSubject();
+
+        if (userName != null) {
+            var userDetails = userDetailsService.loadUserByUsername(userName);
+            return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+        }
+        }
+    return null;
     }
 }

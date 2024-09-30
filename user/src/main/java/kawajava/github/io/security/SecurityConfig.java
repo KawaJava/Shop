@@ -1,5 +1,6 @@
 package kawajava.github.io.security;
 
+import kawajava.github.io.jwtblacklist.service.JWTBlacklistService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,11 @@ import javax.sql.DataSource;
 public class SecurityConfig {
 
     private final String secret;
+    private final JWTBlacklistService blacklistService;
 
-    public SecurityConfig(@Value("${jwt.secret}") String secret) {
+    public SecurityConfig(@Value("${jwt.secret}") String secret, JWTBlacklistService blacklistService) {
         this.secret = secret;
+        this.blacklistService = blacklistService;
     }
 
     @Bean
@@ -32,7 +35,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager, userDetailsService, secret));
+                .addFilter(new JwtAuthorizationFilter(authenticationManager, userDetailsService, secret, blacklistService));
         return http.build();
     }
 
