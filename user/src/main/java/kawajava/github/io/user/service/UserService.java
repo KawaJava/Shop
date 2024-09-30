@@ -25,7 +25,7 @@ public class UserService {
         validatePassword(userDto.getPassword());
         var passwordInBcrypt = hashPassword(userDto.getPassword());
 
-        var user = mapToUser(userDto, passwordInBcrypt,null);
+        var user = mapToUser(userDto, passwordInBcrypt,null, false);
         return userRepository.save(user);
     }
 
@@ -60,7 +60,7 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
-    private User mapToUser(UserDto userDto, String passwordInBcrypt, Long id) {
+    private User mapToUser(UserDto userDto, String passwordInBcrypt, Long id, boolean isActive) {
         return User.builder()
                 .id(id)
                 .firstName(userDto.getFirstName())
@@ -69,6 +69,7 @@ public class UserService {
                 .email(userDto.getEmail())
                 .phoneNumber(userDto.getPhoneNumber())
                 .password(passwordInBcrypt)
+                .isActive(isActive)
                 .build();
     }
 
@@ -82,7 +83,7 @@ public class UserService {
         validateUsername(userDto.getUsername());
         validatePassword(userDto.getPassword());
         var passwordInBcrypt = hashPassword(userDto.getPassword());
-        var updatedUser = mapToUser(userDto, passwordInBcrypt, user.getId());
+        var updatedUser = mapToUser(userDto, passwordInBcrypt, user.getId(), true);
         userRepository.save(updatedUser);
         return "Dane użytkownika zostały zaktualizowane";
     }

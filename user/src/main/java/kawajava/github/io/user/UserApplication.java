@@ -7,7 +7,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-        //(exclude = { SecurityAutoConfiguration.class })
+        (exclude = { SecurityAutoConfiguration.class })
 @EnableDiscoveryClient
 @EnableAsync
 public class UserApplication {

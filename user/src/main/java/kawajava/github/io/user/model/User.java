@@ -22,6 +22,7 @@ public class User {
     private String email;
     private String phoneNumber;
     private String password;
+    private boolean isActive;
     private String hash;
     private LocalDateTime HashDate;
 }
