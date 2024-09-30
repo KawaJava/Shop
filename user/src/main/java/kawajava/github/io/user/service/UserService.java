@@ -3,7 +3,6 @@ package kawajava.github.io.user.service;
 
 import jakarta.transaction.Transactional;
 import kawajava.github.io.exception.ResourceNotFoundException;
-import kawajava.github.io.mail.service.EmailClientService;
 import kawajava.github.io.user.controller.dto.UserDto;
 import kawajava.github.io.user.model.User;
 import kawajava.github.io.user.repository.UserRepository;
@@ -21,7 +20,6 @@ import java.util.regex.Pattern;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final EmailClientService emailClientService;
     private final EmailDetailsService emailDetailsService;
     @Value("${app.serviceAddress}")
     private String serviceAddress;

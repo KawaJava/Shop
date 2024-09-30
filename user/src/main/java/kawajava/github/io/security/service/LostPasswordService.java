@@ -50,7 +50,7 @@ public class LostPasswordService {
     }
 
     private String generateHashForLostPassword(User user) {
-        String toHash = user.getId() + user.getUsername() + user.getPassword() + LocalDateTime.now();
+        var toHash = user.getId() + user.getUsername() + user.getPassword() + LocalDateTime.now();
         return DigestUtils.sha256Hex(toHash);
     }
 
