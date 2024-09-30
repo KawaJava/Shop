@@ -31,15 +31,16 @@ public class LoginController {
         this.expirationTime = expirationTime;
     }
 
-
-
     @PostMapping("/login")
     public Token login(@RequestBody LoginCredentials loginCredentials) {
+        String usernameOrEmail = loginCredentials.usernameOrEmail();
+        String loginType = usernameOrEmail.contains("@") ? "email" : "username";
+
         var authenticate = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginCredentials.username(), loginCredentials.password())
+                new UsernamePasswordAuthenticationToken(usernameOrEmail, loginCredentials.password())
         );
 
-        UserDetails principal = (UserDetails) authenticate.getPrincipal();
+        var principal = (UserDetails) authenticate.getPrincipal();
 
         String token = JWT.create()
                 .withSubject(principal.getUsername())
@@ -48,7 +49,7 @@ public class LoginController {
 
         return new Token(token);
     }
-
+    
     @GetMapping("/hello")
     public String hello() {
         return "Hello World";
