@@ -37,9 +37,13 @@ public class UserController {
         if (user.getActivationTokenDate().plusHours(24).isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Token wygasł");
         }
-
         userService.activateUser(user.getId());
-
         return ResponseEntity.ok("Konto zostało aktywowane!");
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal UserDetails userDetails) {
+        userService.deleteUser(userDetails);
+        return ResponseEntity.ok("Konto zostało trwale usunięte.");
     }
 }

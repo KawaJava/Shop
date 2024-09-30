@@ -8,13 +8,11 @@ import kawajava.github.io.user.controller.dto.UserDto;
 import kawajava.github.io.user.model.User;
 import kawajava.github.io.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -49,6 +47,12 @@ public class UserService {
         userRepository.activateUser(id);
     }
 
+    public void deleteUser(UserDetails userDetails) {
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException(userDetails.getUsername()));
+
+        userRepository.delete(user);
+    }
     private void validateEmail(String email) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {
