@@ -10,6 +10,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -28,5 +30,19 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/activate/{token}")
+    public ResponseEntity<String> activateAccount(@PathVariable String token) {
+        var user = userService.findByActivationToken(token);
 
+        if (user.getActivationTokenDate().plusHours(24).isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token wygasł");
+        }
+
+        user.setActive(true);
+        user.setActivationToken(null);
+        user.setActivationTokenDate(null);
+        //userService.
+
+        return ResponseEntity.ok("Konto zostało aktywowane!");
+    }
 }

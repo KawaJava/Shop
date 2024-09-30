@@ -1,15 +1,20 @@
 package kawajava.github.io.user.service;
 
 
+import jakarta.transaction.Transactional;
 import kawajava.github.io.exception.ResourceNotFoundException;
+import kawajava.github.io.mail.service.EmailClientService;
 import kawajava.github.io.user.controller.dto.UserDto;
 import kawajava.github.io.user.model.User;
 import kawajava.github.io.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -18,7 +23,12 @@ import java.util.regex.Pattern;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final EmailClientService emailClientService;
+    private final EmailDetailsService emailDetailsService;
+    @Value("${app.serviceAddress}")
+    private String serviceAddress;
 
+    @Transactional
     public User registerUser(UserDto userDto) {
         validateEmail(userDto.getEmail());
         validateUsername(userDto.getUsername());
@@ -26,6 +36,8 @@ public class UserService {
         var passwordInBcrypt = hashPassword(userDto.getPassword());
 
         var user = mapToUser(userDto, passwordInBcrypt,null, false);
+
+        emailDetailsService.sendActivationLink(user);
         return userRepository.save(user);
     }
 
@@ -86,5 +98,9 @@ public class UserService {
         var updatedUser = mapToUser(userDto, passwordInBcrypt, user.getId(), true);
         userRepository.save(updatedUser);
         return "Dane użytkownika zostały zaktualizowane";
+    }
+
+    public User findByActivationToken(String token) {
+        return userRepository.findByActivationToken(token).orElseThrow(() -> new ResourceNotFoundException(token));
     }
 }

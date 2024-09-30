@@ -23,6 +23,8 @@ public class User {
     private String phoneNumber;
     private String password;
     private boolean isActive;
+    private String activationToken;
+    private LocalDateTime activationTokenDate;
     private String hash;
     private LocalDateTime HashDate;
 }
