@@ -41,6 +41,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User findByActivationToken(String token) {
+        return userRepository.findByActivationToken(token).orElseThrow(() -> new ResourceNotFoundException(token));
+    }
+
+    public void activateUser(Long id) {
+        userRepository.activateUser(id);
+    }
+
     private void validateEmail(String email) {
         Optional<User> userByEmail = userRepository.findByEmail(email);
         if (userByEmail.isPresent()) {
@@ -98,9 +106,5 @@ public class UserService {
         var updatedUser = mapToUser(userDto, passwordInBcrypt, user.getId(), true);
         userRepository.save(updatedUser);
         return "Dane użytkownika zostały zaktualizowane";
-    }
-
-    public User findByActivationToken(String token) {
-        return userRepository.findByActivationToken(token).orElseThrow(() -> new ResourceNotFoundException(token));
     }
 }

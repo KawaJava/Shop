@@ -38,10 +38,7 @@ public class UserController {
             throw new RuntimeException("Token wygasł");
         }
 
-        user.setActive(true);
-        user.setActivationToken(null);
-        user.setActivationTokenDate(null);
-        //userService.
+        userService.activateUser(user.getId());
 
         return ResponseEntity.ok("Konto zostało aktywowane!");
     }
