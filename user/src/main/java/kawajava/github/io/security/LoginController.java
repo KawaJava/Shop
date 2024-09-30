@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,11 @@ import java.util.Date;
 @RestController
 public class LoginController {
 
+    private final AuthenticationManager authenticationManager;
+
+    private final long expirationTime;
+    private final String secret;
+
     public LoginController(AuthenticationManager authenticationManager,
                            @Value("${jwt.expirationTime}") long expirationTime,
                            @Value("${jwt.secret}") String secret) {
@@ -25,10 +31,7 @@ public class LoginController {
         this.expirationTime = expirationTime;
     }
 
-    private final AuthenticationManager authenticationManager;
 
-    private long expirationTime;
-    private String secret;
 
     @PostMapping("/login")
     public Token login(@RequestBody LoginCredentials loginCredentials) {
@@ -44,5 +47,10 @@ public class LoginController {
                 .sign(Algorithm.HMAC256(secret));
 
         return new Token(token);
+    }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello World";
     }
 }
