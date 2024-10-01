@@ -1,6 +1,10 @@
 package kawajava.github.io.user.controller;
 
 import jakarta.validation.Valid;
+import kawajava.github.io.order.model.Order;
+import kawajava.github.io.order.service.OrderService;
+import kawajava.github.io.user.controller.dto.OrderDetailsDto;
+import kawajava.github.io.user.controller.dto.UserDetailsDto;
 import kawajava.github.io.user.controller.dto.UserDto;
 import kawajava.github.io.user.model.User;
 import kawajava.github.io.user.service.UserService;
@@ -11,23 +15,48 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final OrderService orderService;
 
     @PostMapping("/registry")
     public User createUser(@RequestBody @Valid UserDto userDto) {
         return userService.registerUser(userDto);
     }
 
-    @PutMapping("/user/edit")
+    @PutMapping("/users/edit")
     public ResponseEntity<String> updateUser(@AuthenticationPrincipal UserDetails userDetails,
             @RequestBody @Valid UserDto userDto) {
         String response = userService.updateUser(userDetails, userDto);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users/details")
+    public UserDetailsDto getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
+        var user = userService.findByUsername(userDetails);
+        List<Order> allForUser = orderService.findAllForUser(user.getId());
+        return UserDetailsDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .orders(allForUser.stream()
+                        .map(order -> OrderDetailsDto.builder()
+                                .placeDate(order.getPlaceDate())
+                                .orderStatus(order.getOrderStatus())
+                                .grossValue(order.getGrossValue())
+                                .zipcode(order.getZipcode())
+                                .city(order.getCity())
+                                .street(order.getStreet())
+                                .build())
+                        .toList())
+                .build();
     }
 
     @PostMapping("/activate/{token}")

@@ -45,6 +45,10 @@ public class UserService {
     public void activateUser(Long id) {
         userRepository.activateUser(id);
     }
+    public User findByUsername(UserDetails userDetails) {
+        return userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException(userDetails.getUsername()));
+    }
 
     public void deleteUser(UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername())
