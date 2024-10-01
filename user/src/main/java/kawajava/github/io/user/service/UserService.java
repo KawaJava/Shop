@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import kawajava.github.io.exception.ResourceNotFoundException;
 import kawajava.github.io.user.controller.dto.UserDto;
 import kawajava.github.io.user.model.User;
+import kawajava.github.io.user.model.UserRole;
 import kawajava.github.io.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,6 +93,7 @@ public class UserService {
                 .phoneNumber(userDto.getPhoneNumber())
                 .password(passwordInBcrypt)
                 .isActive(isActive)
+                .role(UserRole.USER)
                 .build();
     }
 

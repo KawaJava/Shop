@@ -23,6 +23,8 @@ public class User {
     private String phoneNumber;
     private String password;
     private boolean isActive;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     private String activationToken;
     private LocalDateTime activationTokenDate;
     private String hash;
