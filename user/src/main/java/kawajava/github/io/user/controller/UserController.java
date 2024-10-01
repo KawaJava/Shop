@@ -1,6 +1,7 @@
 package kawajava.github.io.user.controller;
 
 import jakarta.validation.Valid;
+import kawajava.github.io.kafka.KafkaProducer;
 import kawajava.github.io.order.model.Order;
 import kawajava.github.io.order.service.OrderService;
 import kawajava.github.io.user.controller.dto.OrderDetailsDto;
@@ -23,10 +24,17 @@ public class UserController {
 
     private final UserService userService;
     private final OrderService orderService;
+    private final KafkaProducer kafkaProducer;
 
     @PostMapping("/registry")
     public User createUser(@RequestBody @Valid UserDto userDto) {
-        return userService.registerUser(userDto);
+        var newUser = userService.registerUser(userDto);
+
+        var message = "Nowy użytkownik zarejestrowany: " + newUser.getUsername() +
+                " (" + newUser.getEmail() + ")";
+
+        kafkaProducer.sendMessage("user-registration-topic", message);
+        return newUser;
     }
 
     @PutMapping("/users/edit")
