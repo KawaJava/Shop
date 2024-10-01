@@ -15,19 +15,19 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  stary-serwis:
-    image: stary-serwis:latest
+  user:
+    image: user:latest
     build:
-      context: ./stary-serwis
+      context: ./user
     ports:
       - "8081:8080"
     depends_on:
       - kafka
 
-  nowy-serwis:
-    image: nowy-serwis:latest
+  KafkaExample:
+    image: KafkaExample:latest
     build:
-      context: ./nowy-serwis
+      context: ./KafkaExample
     ports:
       - "8080:8080"
     depends_on:
