@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/users/details")
+    @GetMapping("/users/me/details")
     public UserDetailsDto getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
         var user = userService.findByUsername(userDetails);
         List<Order> allForUser = orderService.findAllForUser(user.getId());
